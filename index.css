@@ -1,0 +1,1196 @@
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;600;700;900&family=Changa:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;700&family=Scheherazade+New:wght@400;700&display=swap');
+@import "tailwindcss";
+
+@font-face {
+  font-family: "Allexp Shifra";
+  src: url("/fonts/ALLEXP03SHIFRA.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Zeyada Arabic";
+  src: url("/fonts/ZEYADAArabic-VF.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Liftaswash Fixed";
+  src: url("/fonts/Liftaswashfixed-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Qadasi";
+  src: url("/fonts/QadasiRegular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --font-sans: "Tajawal", ui-sans-serif, system-ui, sans-serif;
+  --font-cairo: "Cairo", sans-serif;
+  --font-amiri: "Amiri", serif;
+  --font-scheherazade: "Scheherazade New", serif;
+  --font-shifra: "Allexp Shifra", "Noto Naskh Arabic", "Scheherazade New", "Amiri", serif;
+  --font-vietnam: "Be Vietnam Pro", sans-serif;
+  --font-changa: "Changa", sans-serif;
+  --font-naskh: "Noto Naskh Arabic", serif;
+  --font-liftaswash: "Liftaswash Fixed", "Noto Naskh Arabic", "Amiri", serif;
+  --font-qadasi: "Qadasi", "Noto Naskh Arabic", "Amiri", serif;
+
+  --color-gold-50: #fffbf0;
+  --color-gold-100: #fef5d6;
+  --color-gold-200: #fae7a3;
+  --color-gold-300: #f6d469;
+  --color-gold-400: #f1bd36;
+  --color-gold-500: #eca315;
+  --color-gold-600: #d0820e;
+  --color-gold-700: #a65e0f;
+  --color-gold-800: #884a12;
+  --color-gold-900: #733e14;
+
+  --color-brand-dark: #2c3e50;
+  --color-brand-gold: #d4ac0d;
+  --color-brand-light: #ecf0f1;
+  --color-gold-light: #F3E5AB;
+  --color-gold-medium: #DAA520;
+  --color-gold-dark: #B8860B;
+
+  --background-image-islamic-pattern: url('https://www.transparenttextures.com/patterns/arabesque.png');
+  --background-image-mosque-blur: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCGEca7zu9sM4LZnSB-9JDC7baIz2FA5Vy1IX9k-HiNCrBCHvWIMj1SfuGk8LNYc890l6U8lg0crGXmGr9g-YWUJAUpObDbT1OrD6vWd29qA_cloeUFrmYCRERAeGDy-nUptFKzfEuwpejq2Q6xtKUV1M4TH2QuHZ4JFjdr-gMg5uLCfAosYekF_CwygLDVvLDONlcerDAvMVbsJwRgF9-NcC4nW2H4Gg7KeWEBjHn8EDoy34P3QTPEiCSGW8dskT3TVhTxGLTf3wg');
+}
+
+@layer base {
+  html, body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    background-color: #020617;
+  }
+  
+  body {
+    font-family: 'Tajawal', sans-serif;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  #root {
+    height: 100%;
+    width: 100%;
+  }
+}
+
+.nav-stage {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.nav-scene {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
+}
+
+.nav-scene--static {
+  position: relative;
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .dashboard-scroll::-webkit-scrollbar {
+    width: 8px;
+  }
+  .dashboard-scroll::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+  }
+  .dashboard-scroll::-webkit-scrollbar-thumb {
+    background: #ccc; 
+    border-radius: 4px;
+  }
+
+  .animate-gradient-slow {
+    background-size: 400% 400%;
+    animation: gradient-xy 15s ease infinite;
+  }
+
+  .animate-float {
+    animation: float-y 6s ease-in-out infinite;
+  }
+  .animate-float-delayed {
+    animation: float-y 6s ease-in-out infinite;
+    animation-delay: 3s;
+  }
+
+  .animate-glow {
+    animation: glow-pulse 3s infinite;
+  }
+
+  .animate-spin-slow {
+    animation: spin-slow 120s linear infinite;
+  }
+
+  .dashboard-enter {
+    animation: slideInUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  .dashboard-exit {
+    animation: slideOutDownFade 0.4s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+  }
+
+  .font-mosque-name {
+    font-family: "Zeyada Arabic", "Amiri", serif;
+    font-weight: 400;
+  }
+
+  .font-liftaswash {
+    font-family: "Liftaswash Fixed", "Noto Naskh Arabic", "Amiri", serif;
+    font-weight: 400;
+  }
+
+  .font-qadasi {
+    font-family: "Qadasi", "Noto Naskh Arabic", "Amiri", serif;
+    font-weight: 400;
+  }
+}
+
+.occasion-pill {
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.06) inset,
+    0 14px 28px rgba(2, 6, 23, 0.42);
+}
+
+@keyframes gradient-xy {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes float-y {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(236, 163, 21, 0.2); }
+  50% { box-shadow: 0 0 40px rgba(236, 163, 21, 0.6); }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes slideInUpFade {
+  0% { transform: translateY(50px) scale(0.95); opacity: 0; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+@keyframes slideOutDownFade {
+  0% { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(50px) scale(0.95); opacity: 0; }
+}
+
+@keyframes adminPageEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(12px) scale(0.995);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.admin-page-enter {
+  animation: adminPageEnter 320ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
+}
+
+/* Switch Styles */
+.switch-checkbox { display: none; }
+.switch-label {
+  width: 60px;
+  height: 32px;
+  background-color: #e2e8f0;
+  border-radius: 999px;
+  position: relative;
+  cursor: pointer;
+  transition: 0.4s;
+}
+.switch-slider {
+  width: 26px;
+  height: 26px;
+  background-color: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  transition: 0.4s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.switch-checkbox:checked + .switch-label { background-color: #d4ac0d; }
+.switch-checkbox:checked + .switch-label .switch-slider { transform: translateX(28px); }
+
+.today-row {
+   border: 2px solid #eca315 !important;
+   background: rgba(236, 163, 21, 0.08) !important;
+   box-shadow: 0 0 20px rgba(236, 163, 21, 0.3) !important;
+}
+
+/* Premium admin console theme */
+.admin-root {
+  --admin-bg: #070b14;
+  --admin-panel: rgba(13, 20, 34, 0.76);
+  --admin-panel-strong: rgba(8, 13, 24, 0.92);
+  --admin-border: rgba(255, 255, 255, 0.1);
+  --admin-border-soft: rgba(255, 255, 255, 0.07);
+  --admin-gold: #c7a15b;
+  --admin-gold-bright: #f4d58d;
+  --admin-muted: #94a3b8;
+  min-height: 100vh;
+  color: #f8fafc;
+  background:
+    radial-gradient(circle at 78% 2%, rgba(199, 161, 91, 0.2), transparent 28rem),
+    radial-gradient(circle at 14% 8%, rgba(30, 64, 175, 0.22), transparent 32rem),
+    linear-gradient(135deg, #050915 0%, #0a1020 48%, #040711 100%);
+  font-family: "Changa", "Cairo", "Noto Naskh Arabic", sans-serif;
+  isolation: isolate;
+  touch-action: manipulation;
+  overscroll-behavior: none;
+}
+
+.admin-root button,
+.admin-root input,
+.admin-root select,
+.admin-root textarea,
+.admin-root label {
+  touch-action: manipulation;
+}
+
+.admin-root.geo-pattern::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.2;
+  background-image:
+    linear-gradient(30deg, rgba(255,255,255,0.035) 12%, transparent 12.5%, transparent 87%, rgba(255,255,255,0.035) 87.5%, rgba(255,255,255,0.035)),
+    linear-gradient(150deg, rgba(255,255,255,0.035) 12%, transparent 12.5%, transparent 87%, rgba(255,255,255,0.035) 87.5%, rgba(255,255,255,0.035)),
+    linear-gradient(30deg, rgba(255,255,255,0.025) 12%, transparent 12.5%, transparent 87%, rgba(255,255,255,0.025) 87.5%, rgba(255,255,255,0.025)),
+    linear-gradient(150deg, rgba(255,255,255,0.025) 12%, transparent 12.5%, transparent 87%, rgba(255,255,255,0.025) 87.5%, rgba(255,255,255,0.025));
+  background-position: 0 0, 0 0, 42px 74px, 42px 74px;
+  background-size: 84px 148px;
+  mask-image: linear-gradient(to bottom, black, transparent 78%);
+  z-index: -1;
+}
+
+.admin-hero,
+.admin-card,
+.admin-stat-card,
+.admin-mosque-card,
+.admin-empty-card {
+  position: relative;
+  border: 1px solid var(--admin-border);
+  background:
+    linear-gradient(145deg, rgba(255,255,255,0.075), rgba(255,255,255,0.028)),
+    var(--admin-panel);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(22px);
+}
+
+.admin-hero::after,
+.admin-card::after,
+.admin-stat-card::after,
+.admin-mosque-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: radial-gradient(circle at 50% 0%, rgba(199,161,91,0.13), transparent 42%);
+}
+
+.admin-hero > *,
+.admin-card > *,
+.admin-stat-card > *,
+.admin-mosque-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.admin-hero {
+  border-radius: 34px;
+  overflow: hidden;
+  padding: 28px;
+}
+
+.admin-card {
+  border-radius: 30px;
+  overflow: hidden;
+  padding: 24px;
+}
+
+.admin-stat-card,
+.admin-mosque-card,
+.admin-empty-card {
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+.admin-stat-card {
+  padding: 20px;
+}
+
+.admin-mosque-card {
+  padding: 20px;
+}
+
+.admin-mosque-card[data-selected="true"] {
+  border-color: rgba(244, 213, 141, 0.56);
+  background:
+    linear-gradient(145deg, rgba(199,161,91,0.2), rgba(255,255,255,0.055)),
+    rgba(15, 23, 42, 0.84);
+  box-shadow: 0 30px 80px rgba(199, 161, 91, 0.13);
+}
+
+.admin-section-title {
+  color: #ffffff;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.admin-section-subtitle {
+  color: var(--admin-muted);
+  line-height: 1.9;
+}
+
+.admin-gold-line {
+  height: 1px;
+  width: 96px;
+  background: linear-gradient(90deg, transparent, var(--admin-gold-bright), transparent);
+}
+
+.admin-input,
+.admin-root input:not([type="file"]),
+.admin-root textarea,
+.admin-root select {
+  border: 1px solid var(--admin-border) !important;
+  background: rgba(2, 6, 23, 0.48) !important;
+  color: #f8fafc !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+.admin-root input:not([type="file"]):focus,
+.admin-root textarea:focus,
+.admin-root select:focus {
+  border-color: rgba(244, 213, 141, 0.62) !important;
+  box-shadow: 0 0 0 4px rgba(199, 161, 91, 0.12);
+}
+
+.admin-root ::placeholder {
+  color: rgba(148, 163, 184, 0.72);
+}
+
+.admin-action-gold {
+  border: 1px solid rgba(244, 213, 141, 0.25);
+  background: linear-gradient(135deg, #d6b66e, #f4d58d 48%, #b48946);
+  color: #07111f;
+  box-shadow: 0 14px 38px rgba(199, 161, 91, 0.18);
+}
+
+.admin-action-ghost {
+  border: 1px solid var(--admin-border);
+  background: rgba(255,255,255,0.055);
+  color: #f8fafc;
+}
+
+.admin-tab-active {
+  border-color: rgba(244, 213, 141, 0.5) !important;
+  background: linear-gradient(135deg, rgba(199,161,91,0.2), rgba(255,255,255,0.065)) !important;
+  color: #fdecc5 !important;
+}
+
+.admin-scrollbar::-webkit-scrollbar,
+.admin-root ::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+
+.admin-scrollbar::-webkit-scrollbar-track,
+.admin-root ::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.04);
+}
+
+.admin-scrollbar::-webkit-scrollbar-thumb,
+.admin-root ::-webkit-scrollbar-thumb {
+  background: rgba(199, 161, 91, 0.42);
+  border-radius: 999px;
+}
+
+/* Light, calm admin console identity */
+.admin-root {
+  --admin-bg: #f7f2e8;
+  --admin-panel: rgba(255, 255, 255, 0.82);
+  --admin-panel-strong: rgba(255, 255, 255, 0.94);
+  --admin-border: rgba(67, 56, 45, 0.12);
+  --admin-border-soft: rgba(67, 56, 45, 0.08);
+  --admin-gold: #b7791f;
+  --admin-gold-bright: #d99b32;
+  --admin-muted: #64748b;
+  color: #172033;
+  background:
+    radial-gradient(circle at 82% -4%, rgba(217, 155, 50, 0.22), transparent 34rem),
+    radial-gradient(circle at 6% 4%, rgba(14, 116, 144, 0.12), transparent 32rem),
+    linear-gradient(135deg, #fffaf0 0%, #f7f2e8 48%, #eef7f4 100%);
+}
+
+.admin-root.geo-pattern::before {
+  opacity: 0.12;
+  background-image:
+    linear-gradient(30deg, rgba(97, 72, 33, 0.08) 12%, transparent 12.5%, transparent 87%, rgba(97, 72, 33, 0.08) 87.5%, rgba(97, 72, 33, 0.08)),
+    linear-gradient(150deg, rgba(97, 72, 33, 0.08) 12%, transparent 12.5%, transparent 87%, rgba(97, 72, 33, 0.08) 87.5%, rgba(97, 72, 33, 0.08));
+  mask-image: linear-gradient(to bottom, black, transparent 80%);
+}
+
+.admin-hero,
+.admin-card,
+.admin-stat-card,
+.admin-mosque-card,
+.admin-empty-card {
+  border-color: var(--admin-border);
+  background:
+    linear-gradient(145deg, rgba(255,255,255,0.96), rgba(255,255,255,0.72)),
+    var(--admin-panel);
+  box-shadow:
+    0 26px 70px rgba(97, 72, 33, 0.1),
+    0 1px 0 rgba(255,255,255,0.9) inset;
+  backdrop-filter: blur(18px);
+}
+
+.admin-hero::after,
+.admin-card::after,
+.admin-stat-card::after,
+.admin-mosque-card::after {
+  background:
+    radial-gradient(circle at 14% 0%, rgba(217,155,50,0.12), transparent 34%),
+    linear-gradient(90deg, rgba(14,116,144,0.035), transparent 44%);
+}
+
+.admin-brand-orb {
+  display: grid;
+  height: 68px;
+  width: 68px;
+  place-items: center;
+  border-radius: 24px;
+  color: #8a5a13;
+  background:
+    linear-gradient(145deg, #fff7df, #f5d796),
+    #f7e4b6;
+  border: 1px solid rgba(183, 121, 31, 0.22);
+  box-shadow:
+    0 16px 36px rgba(183, 121, 31, 0.16),
+    inset 0 1px 0 rgba(255,255,255,0.8);
+}
+
+.admin-mosque-card {
+  background:
+    linear-gradient(145deg, rgba(255,255,255,0.98), rgba(255,255,255,0.78)),
+    #ffffff;
+  box-shadow: 0 20px 52px rgba(97, 72, 33, 0.09);
+}
+
+.admin-mosque-card:hover {
+  border-color: rgba(183, 121, 31, 0.28);
+  box-shadow: 0 28px 70px rgba(97, 72, 33, 0.13);
+}
+
+.admin-mosque-card[data-selected="true"] {
+  border-color: rgba(183, 121, 31, 0.42);
+  background:
+    linear-gradient(145deg, rgba(255,248,226,0.98), rgba(255,255,255,0.9));
+  box-shadow: 0 30px 80px rgba(183, 121, 31, 0.18);
+}
+
+.admin-section-title,
+.admin-root .text-white {
+  color: #172033 !important;
+}
+
+.admin-root .text-slate-200,
+.admin-root .text-slate-300,
+.admin-root .text-slate-400,
+.admin-root .text-slate-500 {
+  color: #64748b !important;
+}
+
+.admin-root [class*="text-gold-"] {
+  color: #9a6417 !important;
+}
+
+.admin-section-subtitle {
+  color: #64748b;
+}
+
+.admin-gold-line {
+  width: 68px;
+  background: linear-gradient(90deg, transparent, #d99b32, transparent);
+}
+
+.admin-input,
+.admin-root input:not([type="file"]),
+.admin-root textarea,
+.admin-root select {
+  border-color: rgba(67, 56, 45, 0.14) !important;
+  background: rgba(255, 255, 255, 0.86) !important;
+  color: #172033 !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.9),
+    0 10px 24px rgba(97,72,33,0.05);
+}
+
+.admin-root input:not([type="file"]):focus,
+.admin-root textarea:focus,
+.admin-root select:focus {
+  border-color: rgba(183, 121, 31, 0.44) !important;
+  box-shadow: 0 0 0 4px rgba(217, 155, 50, 0.14);
+}
+
+.admin-root ::placeholder {
+  color: rgba(100, 116, 139, 0.72);
+}
+
+.admin-action-gold {
+  border-color: rgba(183, 121, 31, 0.2);
+  background: linear-gradient(135deg, #f7d27d, #f9e7b1 52%, #d99b32);
+  color: #432b08 !important;
+  box-shadow: 0 16px 34px rgba(183, 121, 31, 0.18);
+}
+
+.admin-action-ghost {
+  border-color: rgba(67, 56, 45, 0.12);
+  background: rgba(255, 255, 255, 0.74);
+  color: #172033 !important;
+  box-shadow: 0 12px 28px rgba(97, 72, 33, 0.06);
+}
+
+.admin-action-ghost:hover,
+.admin-action-gold:hover {
+  transform: translateY(-1px);
+}
+
+.admin-tab-active {
+  border-color: rgba(183, 121, 31, 0.38) !important;
+  background: linear-gradient(135deg, rgba(251,230,177,0.86), rgba(255,255,255,0.76)) !important;
+  color: #432b08 !important;
+}
+
+.admin-empty-card {
+  background: rgba(255, 255, 255, 0.68);
+}
+
+.admin-root [class*="border-white/"] {
+  border-color: rgba(67, 56, 45, 0.12) !important;
+}
+
+.admin-root [class*="bg-white/"] {
+  background-color: rgba(255, 255, 255, 0.68) !important;
+}
+
+.admin-root [class*="bg-black/"],
+.admin-root [class*="bg-slate-950/"] {
+  background-color: rgba(255, 255, 255, 0.58) !important;
+}
+
+.admin-root [class*="bg-gold-"] {
+  background-color: rgba(217, 155, 50, 0.12) !important;
+}
+
+.admin-root [class*="border-gold-"] {
+  border-color: rgba(183, 121, 31, 0.24) !important;
+}
+
+.admin-tv-preview {
+  background: #020617 !important;
+  color: #ffffff !important;
+}
+
+.admin-tv-preview [class*="bg-slate-950"],
+.admin-tv-preview [class*="bg-slate-900"] {
+  background-color: rgba(2, 6, 23, 0.9) !important;
+}
+
+.admin-tv-preview [class*="bg-black/"] {
+  background-color: rgba(0, 0, 0, 0.2) !important;
+}
+
+.admin-tv-preview .text-white {
+  color: #ffffff !important;
+}
+
+.admin-tv-preview .text-slate-300 {
+  color: #cbd5e1 !important;
+}
+
+.admin-tv-preview .text-slate-400,
+.admin-tv-preview .text-slate-500 {
+  color: #94a3b8 !important;
+}
+
+.admin-tv-preview [class*="border-white/"] {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.admin-scrollbar::-webkit-scrollbar-track,
+.admin-root ::-webkit-scrollbar-track {
+  background: rgba(97, 72, 33, 0.06);
+}
+
+.admin-scrollbar::-webkit-scrollbar-thumb,
+.admin-root ::-webkit-scrollbar-thumb {
+  background: rgba(183, 121, 31, 0.28);
+}
+
+/* Mosque management interface inspired by the attached prototype */
+@keyframes adminFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes adminSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes adminDomeFloat {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-5px) scale(1.02);
+  }
+}
+
+.admin-root {
+  --admin-proto-bg: #fbf8f0;
+  --admin-proto-card: rgba(255, 255, 255, 0.72);
+  --admin-proto-card-strong: rgba(255, 255, 255, 0.9);
+  --admin-proto-border: rgba(42, 34, 24, 0.1);
+  --admin-proto-gold: #b8791f;
+  --admin-proto-gold-soft: #fff1c7;
+  --admin-proto-emerald: #0f766e;
+  --admin-proto-text: #171717;
+  --admin-proto-muted: #6b7280;
+  color: var(--admin-proto-text);
+  background:
+    radial-gradient(circle at 18% 4%, rgba(15, 118, 110, 0.12), transparent 28rem),
+    radial-gradient(circle at 82% 0%, rgba(216, 157, 54, 0.22), transparent 32rem),
+    linear-gradient(135deg, #fffaf0 0%, #fbf8f0 45%, #f0fbf7 100%);
+  font-family: "Changa", "Cairo", "Noto Naskh Arabic", sans-serif;
+}
+
+.admin-root.geo-pattern::before {
+  opacity: 0.18;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23b8791f' fill-opacity='0.10'%3E%3Cpath d='M30 0L60 30L30 60L0 30z'/%3E%3Cpath d='M30 12L48 30L30 48L12 30z' fill-opacity='0.35'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 72px 72px;
+  mask-image: linear-gradient(to bottom, black, transparent 75%);
+}
+
+.admin-root > .mx-auto {
+  max-width: 1280px !important;
+}
+
+.admin-root .admin-hero {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  margin-inline: -0.5rem;
+  margin-bottom: 2rem;
+  border-radius: 0 0 28px 28px;
+  border: 1px solid rgba(42, 34, 24, 0.08);
+  background: rgba(251, 248, 240, 0.84);
+  box-shadow: 0 18px 44px rgba(42, 34, 24, 0.08);
+  backdrop-filter: blur(18px);
+}
+
+.admin-root .admin-hero::after {
+  display: none;
+}
+
+.admin-brand-orb {
+  height: 58px;
+  width: 58px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #092f2a, #0f766e);
+  box-shadow:
+    0 0 34px rgba(15, 118, 110, 0.22),
+    inset 0 1px 0 rgba(255,255,255,0.85);
+}
+
+.admin-logo {
+  display: block;
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 18px rgba(4, 47, 46, 0.22));
+}
+
+.admin-dome {
+  filter: drop-shadow(0 12px 22px rgba(184, 121, 31, 0.18));
+  animation: adminDomeFloat 6s ease-in-out infinite;
+}
+
+.admin-page-enter,
+.admin-card,
+.admin-stat-card,
+.admin-empty-card {
+  animation: adminFadeIn 420ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
+}
+
+.admin-card,
+.admin-stat-card,
+.admin-empty-card {
+  border: 1px solid var(--admin-proto-border);
+  background: var(--admin-proto-card);
+  box-shadow:
+    0 22px 58px rgba(42, 34, 24, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(14px);
+}
+
+.admin-card::after,
+.admin-stat-card::after,
+.admin-empty-card::after {
+  background: linear-gradient(135deg, rgba(255, 245, 214, 0.42), transparent 42%);
+}
+
+.admin-stat-card {
+  min-height: 132px;
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.admin-stat-card:hover,
+.admin-card:hover {
+  border-color: rgba(184, 121, 31, 0.18);
+}
+
+.admin-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 28px 66px rgba(42, 34, 24, 0.11);
+}
+
+.admin-stagger > * {
+  animation: adminFadeIn 420ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
+}
+
+.admin-stagger > *:nth-child(1) { animation-delay: 0ms; }
+.admin-stagger > *:nth-child(2) { animation-delay: 80ms; }
+.admin-stagger > *:nth-child(3) { animation-delay: 160ms; }
+.admin-stagger > *:nth-child(4) { animation-delay: 240ms; }
+
+.admin-root .admin-stagger {
+  display: none !important;
+}
+
+.admin-section-title {
+  color: #171717 !important;
+}
+
+.admin-root .gold-text,
+.admin-root [class*="text-gold-"] {
+  background: linear-gradient(135deg, #d99b32, #875513);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent !important;
+}
+
+.admin-action-tile {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: 104px;
+  border-radius: 1.35rem;
+  border: 1px solid rgba(15, 118, 110, 0.22);
+  background: rgba(255, 255, 255, 0.64);
+  padding: 1.35rem 1.4rem;
+  color: #171717;
+  box-shadow: 0 18px 44px rgba(42, 34, 24, 0.08);
+  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+
+.admin-action-tile:hover {
+  transform: translateY(-2px);
+  background: rgba(255,255,255,0.84);
+  box-shadow: 0 28px 68px rgba(42, 34, 24, 0.12);
+}
+
+.admin-action-tile-primary {
+  border-color: rgba(184, 121, 31, 0.24);
+  background: linear-gradient(135deg, #d99b32, #f7d889);
+  color: #402a08;
+}
+
+.admin-action-tile-icon {
+  display: grid;
+  height: 54px;
+  width: 54px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.26);
+  color: currentColor;
+}
+
+.admin-action-tile-icon-accent {
+  background: rgba(15, 118, 110, 0.1);
+  color: var(--admin-proto-emerald);
+}
+
+.admin-action-gold {
+  background: linear-gradient(135deg, #d99b32, #f7d889) !important;
+  color: #402a08 !important;
+}
+
+.admin-action-ghost {
+  background: rgba(255, 255, 255, 0.68) !important;
+  border-color: rgba(42, 34, 24, 0.1) !important;
+}
+
+.admin-mosque-list {
+  box-shadow: 0 18px 44px rgba(42, 34, 24, 0.06);
+}
+
+.admin-mosque-grid > * {
+  animation: adminSlideIn 420ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
+}
+
+.admin-mosque-grid > *:nth-child(2) { animation-delay: 70ms; }
+.admin-mosque-grid > *:nth-child(3) { animation-delay: 140ms; }
+.admin-mosque-grid > *:nth-child(4) { animation-delay: 210ms; }
+
+.admin-mosque-square {
+  min-height: 300px;
+  border-radius: 1.6rem;
+  border: 1px solid rgba(42, 34, 24, 0.1);
+  background:
+    radial-gradient(circle at 18% 0%, rgba(217, 155, 50, 0.13), transparent 34%),
+    linear-gradient(145deg, rgba(255,255,255,0.98), rgba(255,255,255,0.76));
+  box-shadow: 0 22px 56px rgba(42, 34, 24, 0.09);
+}
+
+.admin-mosque-square::after {
+  display: none;
+}
+
+.admin-mosque-square:hover {
+  border-color: rgba(15, 118, 110, 0.26);
+  box-shadow: 0 30px 74px rgba(42, 34, 24, 0.13);
+}
+
+.admin-mosque-square:hover .admin-row-icon {
+  transform: scale(1.06) rotate(-2deg);
+  background: rgba(15, 118, 110, 0.12);
+  color: #0f766e;
+}
+
+.admin-mosque-square:hover .admin-row-arrow {
+  color: #0f766e;
+  background: rgba(15, 118, 110, 0.08);
+  transform: translateX(-4px);
+}
+
+.admin-mosque-square > button {
+  gap: 1rem;
+}
+
+.admin-mosque-square > button > .min-w-0 {
+  width: 100%;
+  flex: 0 0 auto;
+}
+
+.admin-mosque-square > button > .min-w-0 > .mt-1 {
+  display: none !important;
+}
+
+.admin-mosque-square > button > .hidden.text-left {
+  display: block !important;
+  margin-top: auto;
+  text-align: right;
+}
+
+.admin-mosque-square > button > .flex.items-center.gap-2 {
+  width: 100%;
+  justify-content: space-between;
+}
+
+.admin-mosque-square > div > button {
+  font-size: 0 !important;
+}
+
+.admin-mosque-square > div > button::after {
+  content: "حذف";
+  font-size: 0.75rem;
+}
+
+.admin-square-metric {
+  border-radius: 1rem;
+  border: 1px solid rgba(42, 34, 24, 0.08);
+  background: rgba(255, 255, 255, 0.62);
+  padding: 0.85rem;
+}
+
+.admin-square-metric span {
+  display: block;
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.admin-square-metric strong {
+  display: block;
+  margin-top: 0.25rem;
+  color: #172033;
+  font-size: 1rem;
+  font-weight: 950;
+}
+
+.admin-mosque-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border: 0;
+  border-radius: 0;
+  background: rgba(255, 255, 255, 0.54);
+  box-shadow: none;
+  animation: adminSlideIn 420ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
+}
+
+.admin-mosque-row::after {
+  display: none;
+}
+
+.admin-mosque-row:hover {
+  background: rgba(245, 235, 213, 0.46);
+}
+
+.admin-row-icon,
+.admin-management-icon {
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  background: rgba(184, 121, 31, 0.1);
+  color: #b8791f;
+}
+
+.admin-row-icon {
+  height: 52px;
+  width: 52px;
+  transition: background 180ms ease, transform 180ms ease;
+}
+
+.admin-mosque-row:hover .admin-row-icon {
+  transform: scale(1.05);
+  background: rgba(184, 121, 31, 0.16);
+}
+
+.admin-row-arrow {
+  display: grid;
+  place-items: center;
+  height: 38px;
+  width: 38px;
+  border-radius: 999px;
+  color: #9ca3af;
+  transition: color 180ms ease, transform 180ms ease, background 180ms ease;
+}
+
+.admin-mosque-row:hover .admin-row-arrow {
+  color: #b8791f;
+  background: rgba(184, 121, 31, 0.08);
+  transform: translateX(-4px);
+}
+
+.admin-code-badge,
+.admin-code-panel {
+  border: 1px solid rgba(184, 121, 31, 0.26);
+  background: rgba(255, 241, 199, 0.56);
+  color: #9a6417;
+  border-radius: 999px;
+  padding: 0.3rem 0.75rem;
+}
+
+.admin-code-panel {
+  border-radius: 1rem;
+  text-align: center;
+  min-width: 168px;
+  padding: 0.85rem 1rem;
+}
+
+.admin-mosque-identity-card {
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+  border-radius: 1.5rem;
+  border: 1px solid rgba(184, 121, 31, 0.14);
+  background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,241,199,0.34));
+  padding: 1.2rem;
+}
+
+.admin-mosque-identity-icon {
+  display: grid;
+  min-height: 84px;
+  min-width: 84px;
+  place-items: center;
+  border-radius: 1.35rem;
+  background: linear-gradient(135deg, #092f2a, #0f766e);
+  box-shadow: 0 0 34px rgba(15, 118, 110, 0.2);
+}
+
+.admin-management-section {
+  min-height: 184px;
+  border-radius: 1.45rem;
+  border: 1px solid rgba(42, 34, 24, 0.1);
+  background: rgba(255,255,255,0.58);
+  padding: 1.35rem;
+  text-align: right;
+  box-shadow: 0 18px 44px rgba(42, 34, 24, 0.07);
+  animation: adminFadeIn 420ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
+  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease, border-color 180ms ease;
+}
+
+.admin-management-section:hover {
+  transform: translateY(-3px);
+  border-color: rgba(184, 121, 31, 0.26);
+  background: rgba(255,255,255,0.84);
+  box-shadow: 0 28px 68px rgba(42, 34, 24, 0.11);
+}
+
+.admin-management-icon {
+  height: 56px;
+  width: 56px;
+  flex: 0 0 auto;
+}
+
+.admin-section-icon-gold {
+  background: rgba(184, 121, 31, 0.1);
+  color: #b8791f;
+}
+
+.admin-section-icon-emerald {
+  background: rgba(15, 118, 110, 0.1);
+  color: #0f766e;
+}
+
+.admin-section-icon-blue {
+  background: rgba(37, 99, 235, 0.1);
+  color: #2563eb;
+}
+
+.admin-section-icon-slate {
+  background: rgba(71, 85, 105, 0.1);
+  color: #475569;
+}
+
+.admin-mini-badge {
+  border-radius: 999px;
+  background: rgba(241, 245, 249, 0.86);
+  padding: 0.28rem 0.65rem;
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.admin-root .admin-input,
+.admin-root input:not([type="file"]),
+.admin-root textarea,
+.admin-root select {
+  border-radius: 1rem !important;
+  border-color: rgba(42, 34, 24, 0.12) !important;
+  background: rgba(255, 255, 255, 0.72) !important;
+}
+
+.admin-timetable-manager {
+  min-height: 0;
+}
+
+.admin-timetable-manager .dashboard-scroll {
+  scrollbar-width: thin;
+}
+
+.admin-timetable-manager table th {
+  white-space: nowrap;
+}
+
+.admin-timetable-manager .fixed .dashboard-scroll {
+  max-height: calc(100vh - 2rem);
+}
+
+.admin-timetable-manager [class*="bg-slate-900/"],
+.admin-timetable-manager [class*="bg-slate-950/"] {
+  background-color: rgba(255, 255, 255, 0.72) !important;
+}
+
+.admin-timetable-manager [class*="text-gray-"] {
+  color: #64748b !important;
+}
+
+.admin-timetable-manager thead {
+  background: rgba(248, 250, 252, 0.88) !important;
+}
+
+.admin-timetable-manager tbody tr:hover {
+  background: rgba(15, 118, 110, 0.05) !important;
+}
+
+.admin-tv-preview,
+.admin-tv-preview .text-white {
+  color: #ffffff !important;
+}
+
+@media (max-width: 768px) {
+  .admin-mosque-row,
+  .admin-mosque-identity-card {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .admin-mosque-row > button {
+    align-items: flex-start;
+  }
+
+  .admin-code-panel {
+    width: 100%;
+  }
+}

@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+
+# Production and Electron build output
+build/
+dist/
+dist-*/
+*.exe
+*.blockmap
+*.asar
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+*.local
+*.key
+*.pem
+*.p12
+
+# Logs and caches
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.firebase/
+.vite/
+coverage/
+
+# OS and editor noise
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/

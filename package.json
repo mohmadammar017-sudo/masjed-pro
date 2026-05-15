@@ -1,0 +1,78 @@
+{
+  "name": "masjid-display-pro",
+  "version": "1.1.9",
+  "private": true,
+  "main": "electron.js",
+  "homepage": "./",
+  "dependencies": {
+    "@google/genai": "^0.2.0",
+    "@tailwindcss/vite": "^4.2.0",
+    "express": "^5.2.1",
+    "firebase": "^10.8.0",
+    "idb": "^8.0.0",
+    "lucide-react": "^0.577.0",
+    "qrcode": "^1.5.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "socket.io": "^4.8.3",
+    "tailwindcss": "^4.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@vitejs/plugin-react": "^4.2.1",
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
+    "electron": "^28.1.0",
+    "electron-builder": "^24.9.1",
+    "png-to-ico": "^3.0.1",
+    "typescript": "^5.3.3",
+    "vite": "^5.1.4",
+    "wait-on": "^7.2.0"
+  },
+  "scripts": {
+    "start": "vite --port 5173 --strictPort",
+    "lint": "tsc --noEmit",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "electron:dev": "node scripts/run-electron-dev.js",
+    "electron:dev:admin": "cross-env MASJID_LAUNCH_ROUTE=admin node scripts/run-electron-dev.js",
+    "dist": "npm run build && electron-builder --win --x64",
+    "dist:screen": "npm run build && electron-builder --win --x64 --config.directories.output=dist-screen --config.extraMetadata.masjidLaunchRoute=display --config.productName=\"Masjid Display Screen\" --config.appId=com.masjid.display.screen",
+    "dist:admin": "npm run build && electron-builder --win --x64 --config.directories.output=dist-admin --config.extraMetadata.masjidLaunchRoute=admin --config.productName=\"Masjid Display Admin\" --config.appId=com.masjid.display.admin",
+    "dist:all": "npm run dist:screen && npm run dist:admin"
+  },
+  "build": {
+    "appId": "com.masjid.display",
+    "productName": "Masjid Display Pro",
+    "copyright": "Copyright © 2024",
+    "asar": true,
+    "directories": {
+      "output": "dist",
+      "buildResources": "public"
+    },
+    "files": [
+      "build/**/*",
+      "electron.js",
+      "preload.js",
+      "package.json",
+      "public/icon.ico"
+    ],
+    "win": {
+      "icon": "icon.ico",
+      "target": [
+        "nsis"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "runAfterFinish": true,
+      "installerIcon": "icon.ico",
+      "uninstallerIcon": "icon.ico",
+      "installerHeaderIcon": "icon.ico"
+    }
+  }
+}

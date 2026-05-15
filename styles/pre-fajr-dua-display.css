@@ -1,0 +1,638 @@
+@font-face {
+  font-family: "Liftaswash Fixed";
+  src: url("/fonts/Liftaswashfixed-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+.pre-fajr-dua-viewer {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  color: #ffffff;
+  background: var(--dua-base-bg, #020617);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  font-synthesis-weight: none;
+}
+
+.pre-fajr-dua-background,
+.pre-fajr-dua-overlay,
+.pre-fajr-dua-vignette {
+  position: absolute;
+  inset: 0;
+}
+
+.pre-fajr-dua-background {
+  z-index: 0;
+  overflow: hidden;
+}
+
+.pre-fajr-dua-background-image,
+.pre-fajr-dua-background-fallback {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pre-fajr-dua-background-image {
+  opacity: 0.62;
+  transform: scale(1.02);
+  filter: saturate(0.94) contrast(1.03);
+}
+
+.pre-fajr-dua-background-fallback {
+  background: var(--dua-fallback-bg, radial-gradient(circle at center, #112344 0%, #020617 100%));
+}
+
+.pre-fajr-dua-overlay {
+  background:
+    radial-gradient(circle at center, var(--dua-halo, rgba(250, 204, 21, 0.12)) 0%, transparent 42%),
+    linear-gradient(180deg, rgba(2, 6, 23, 0.4) 0%, rgba(2, 6, 23, 0.16) 22%, rgba(2, 6, 23, 0.78) 100%);
+}
+
+.pre-fajr-dua-vignette {
+  background: radial-gradient(circle at center, transparent 48%, rgba(2, 6, 23, 0.94) 100%);
+}
+
+.pre-fajr-dua-particles {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: var(--dua-particles-opacity, 0.12);
+  background: url("https://www.transparenttextures.com/patterns/stardust.png");
+  mix-blend-mode: screen;
+}
+
+.pre-fajr-dua-content {
+  position: relative;
+  z-index: 10;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  width: 100%;
+  height: 100%;
+  padding: clamp(1.5rem, 2.2vw, 2.6rem) clamp(1.4rem, 2.6vw, 3rem) clamp(1.8rem, 3vw, 2.8rem);
+}
+
+.pre-fajr-dua-header {
+  display: flex;
+  justify-content: center;
+  padding-top: 0.4rem;
+}
+
+.pre-fajr-dua-title-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.pre-fajr-dua-title {
+  margin: 0;
+  font-family: "Liftaswash Fixed", "Amiri", "Noto Naskh Arabic", "Scheherazade New", serif;
+  font-size: clamp(2.7rem, 3.2vw, 4.3rem);
+  font-weight: 400;
+  line-height: 1.08;
+  letter-spacing: 0;
+  text-align: center;
+  direction: rtl;
+  background: linear-gradient(90deg, var(--dua-title-start, #fcd34d), var(--dua-title-mid, #fff7db), var(--dua-title-end, #fcd34d));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 24px rgba(255, 255, 255, 0.06);
+}
+
+.pre-fajr-dua-divider {
+  width: 108px;
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, var(--dua-divider-color, rgba(250, 204, 21, 0.9)), transparent);
+}
+
+.pre-fajr-dua-stage {
+  position: relative;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pre-fajr-dua-viewport {
+  position: relative;
+  width: var(--dua-viewport-width, min(100%, 1520px));
+  height: var(--dua-viewport-height, min(70vh, 860px));
+  min-height: 0;
+}
+
+.pre-fajr-dua-page {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1.2rem, 2vh, 2.2rem);
+  text-align: center;
+  animation-duration: 360ms;
+  animation-fill-mode: both;
+  animation-timing-function: cubic-bezier(0.22, 0.9, 0.2, 1);
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  contain: layout paint;
+  padding: 1rem 1.5rem;
+}
+
+.pre-fajr-dua-page.is-titleless {
+  gap: clamp(0.6rem, 1.2vh, 1.1rem);
+}
+
+.pre-fajr-dua-page.is-special {
+  gap: 0;
+}
+
+.pre-fajr-dua-page.is-next {
+  animation-name: preFajrDuaEnterNext;
+}
+
+.pre-fajr-dua-page.is-prev {
+  animation-name: preFajrDuaEnterPrev;
+}
+
+.pre-fajr-dua-subtitle {
+  margin: 0;
+  font-family: "Liftaswash Fixed", "Amiri", "Noto Naskh Arabic", "Scheherazade New", serif;
+  font-size: clamp(1.35rem, 1.8vw, 2.2rem);
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+  color: var(--dua-subtitle-color, rgba(253, 230, 138, 0.82));
+  max-width: min(100%, 1200px);
+}
+
+.pre-fajr-dua-text {
+  margin: 0;
+  max-width: min(100%, 1460px);
+  font-family: "Liftaswash Fixed", "Amiri", "Noto Naskh Arabic", "Scheherazade New", serif;
+  font-size: clamp(var(--dua-text-size-min, 2.35rem), var(--dua-text-size-fluid, 4.3vw), var(--dua-text-size-max, 5.8rem));
+  font-weight: 400;
+  line-height: var(--dua-text-line-height, 1.92);
+  letter-spacing: 0;
+  direction: rtl;
+  text-align: center;
+  word-break: keep-all;
+  overflow-wrap: normal;
+  white-space: normal;
+  background: linear-gradient(180deg, var(--dua-text-start, #ffffff), var(--dua-text-end, #fef3c7));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow:
+    0 0 12px rgba(255, 255, 255, 0.05),
+    0 14px 30px rgba(0, 0, 0, 0.34);
+  font-feature-settings: "liga" 1, "rlig" 1, "calt" 1;
+}
+
+.pre-fajr-dua-special-card {
+  width: min(100%, 1480px);
+  position: relative;
+  border-radius: 30px;
+  border: 1px solid var(--dua-special-border, rgba(249, 115, 22, 0.32));
+  background:
+    linear-gradient(180deg, rgba(28, 25, 23, 0.92), rgba(17, 12, 10, 0.98)),
+    radial-gradient(circle at top right, rgba(249, 115, 22, 0.16), transparent 36%);
+  box-shadow:
+    0 22px 48px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  padding: clamp(1.3rem, 2vw, 2.6rem);
+  overflow: hidden;
+}
+
+.pre-fajr-dua-special-title {
+  font-family: "Liftaswash Fixed", "Amiri", "Noto Naskh Arabic", "Scheherazade New", serif;
+  font-size: clamp(1.6rem, 2vw, 2.6rem);
+  color: var(--dua-special-title, #fdba74);
+}
+
+.pre-fajr-dua-special-text {
+  font-family: "Liftaswash Fixed", "Amiri", "Noto Naskh Arabic", "Scheherazade New", serif;
+  font-size: clamp(1.9rem, 2.4vw, 3rem);
+  line-height: 1.92;
+  color: rgba(255, 245, 235, 0.96);
+  font-feature-settings: "liga" 1, "rlig" 1, "calt" 1;
+}
+
+.pre-fajr-dua-sujood-card::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: 28px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.04), transparent 32%),
+    linear-gradient(180deg, rgba(40, 18, 7, 0.66), rgba(16, 8, 5, 0.92));
+  pointer-events: none;
+}
+
+.pre-fajr-dua-sujood-card {
+  animation: duaSujoodReveal 760ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.pre-fajr-dua-sujood-aura {
+  position: absolute;
+  width: 22rem;
+  height: 22rem;
+  border-radius: 999px;
+  filter: blur(90px);
+  opacity: 0.34;
+  pointer-events: none;
+  animation: duaSujoodFloat 10s ease-in-out infinite;
+}
+
+.pre-fajr-dua-sujood-aura-top {
+  top: -8rem;
+  left: -4rem;
+  background: rgba(251, 146, 60, 0.28);
+}
+
+.pre-fajr-dua-sujood-aura-bottom {
+  right: -5rem;
+  bottom: -9rem;
+  background: rgba(253, 186, 116, 0.2);
+  animation-delay: -4s;
+}
+
+.pre-fajr-dua-sujood-shell {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(16rem, 22rem) minmax(0, 1fr);
+  gap: clamp(1.4rem, 2.4vw, 3rem);
+  align-items: center;
+}
+
+.pre-fajr-dua-sujood-side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.1rem;
+  text-align: center;
+  animation: duaSujoodSideIn 880ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.pre-fajr-dua-sujood-icon-shell {
+  position: relative;
+  width: 9rem;
+  height: 9rem;
+  display: grid;
+  place-items: center;
+}
+
+.pre-fajr-dua-sujood-icon-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  border: 1px solid rgba(251, 146, 60, 0.26);
+  box-shadow:
+    0 0 0 14px rgba(251, 146, 60, 0.06),
+    0 0 28px rgba(251, 146, 60, 0.18);
+  animation: duaSujoodPulse 4.2s ease-in-out infinite;
+}
+
+.pre-fajr-dua-sujood-icon {
+  position: relative;
+  z-index: 1;
+  width: 6.75rem;
+  height: 6.75rem;
+  border-radius: 2rem;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(160deg, rgba(180, 83, 9, 0.9), rgba(120, 53, 15, 0.96));
+  color: #fff7ed;
+  box-shadow:
+    0 18px 34px rgba(120, 53, 15, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  font-size: 3rem;
+}
+
+.pre-fajr-dua-sujood-kicker,
+.pre-fajr-dua-sujood-label,
+.pre-fajr-dua-sujood-badge {
+  font-family: "Liftaswash Fixed", "Amiri", "Noto Naskh Arabic", "Scheherazade New", serif;
+}
+
+.pre-fajr-dua-sujood-kicker {
+  font-size: clamp(1.6rem, 2vw, 2.4rem);
+  color: #ffedd5;
+}
+
+.pre-fajr-dua-sujood-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid rgba(251, 146, 60, 0.18);
+  background: rgba(249, 115, 22, 0.1);
+  padding: 0.65rem 1.4rem;
+  font-size: clamp(1.05rem, 1.3vw, 1.35rem);
+  color: rgba(255, 237, 213, 0.9);
+}
+
+.pre-fajr-dua-sujood-line {
+  width: 7rem;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, rgba(251, 146, 60, 0.88), transparent);
+}
+
+.pre-fajr-dua-sujood-body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+  padding: clamp(1rem, 1.6vw, 1.6rem) clamp(1rem, 2vw, 1.8rem);
+  border-radius: 1.9rem;
+  border: 1px solid rgba(251, 146, 60, 0.12);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 32%),
+    rgba(10, 7, 6, 0.32);
+  animation: duaSujoodBodyIn 920ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.pre-fajr-dua-sujood-badge {
+  align-self: flex-end;
+  padding: 0.55rem 1.2rem;
+  border-radius: 999px;
+  border: 1px solid rgba(251, 146, 60, 0.18);
+  background: rgba(249, 115, 22, 0.12);
+  color: #fdba74;
+  font-size: clamp(1rem, 1.2vw, 1.2rem);
+}
+
+.pre-fajr-dua-sujood-text {
+  position: relative;
+  text-align: center;
+  color: rgba(255, 247, 237, 0.98);
+  text-shadow:
+    0 0 18px rgba(255, 237, 213, 0.08),
+    0 18px 36px rgba(0, 0, 0, 0.35);
+}
+
+.pre-fajr-dua-sujood-plea {
+  color: #ffedd5;
+  text-shadow:
+    0 0 24px rgba(253, 186, 116, 0.14),
+    0 18px 38px rgba(0, 0, 0, 0.38);
+}
+
+.pre-fajr-dua-sujood-chant-row {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.pre-fajr-dua-sujood-chant-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 8rem;
+  padding: 0.7rem 1.3rem;
+  border-radius: 999px;
+  border: 1px solid rgba(251, 146, 60, 0.22);
+  background: linear-gradient(180deg, rgba(251, 146, 60, 0.18), rgba(124, 45, 18, 0.24));
+  color: #fff7ed;
+  font-family: "Liftaswash Fixed", "Amiri", "Noto Naskh Arabic", "Scheherazade New", serif;
+  font-size: clamp(1.25rem, 1.55vw, 1.7rem);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 10px 22px rgba(124, 45, 18, 0.28);
+  animation: duaSujoodChantPulse 3.2s ease-in-out infinite;
+}
+
+.pre-fajr-dua-sujood-chant-pill:nth-child(2) {
+  animation-delay: -1.05s;
+}
+
+.pre-fajr-dua-sujood-chant-pill:nth-child(3) {
+  animation-delay: -2.1s;
+}
+
+.pre-fajr-dua-sujood-closing {
+  color: #fed7aa;
+}
+
+.pre-fajr-dua-sujood-floor {
+  display: flex;
+  justify-content: center;
+  gap: 0.8rem;
+}
+
+.pre-fajr-dua-sujood-floor span {
+  display: block;
+  width: clamp(4rem, 9vw, 8rem);
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, rgba(253, 186, 116, 0.85), transparent);
+  animation: duaSujoodSweep 3.6s ease-in-out infinite;
+}
+
+.pre-fajr-dua-sujood-floor span:nth-child(2) {
+  animation-delay: -1.2s;
+}
+
+.pre-fajr-dua-sujood-floor span:nth-child(3) {
+  animation-delay: -2.4s;
+}
+
+.pre-fajr-dua-progress {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.45rem;
+  padding-bottom: 0.35rem;
+}
+
+.pre-fajr-dua-dot {
+  width: 13px;
+  height: 13px;
+  border-radius: 999px;
+  background: var(--dua-dot-idle, rgba(255, 255, 255, 0.22));
+  transition: width 280ms ease, background-color 280ms ease, box-shadow 280ms ease, transform 280ms ease;
+}
+
+.pre-fajr-dua-dot.is-active {
+  width: 44px;
+  background: var(--dua-dot-active, #facc15);
+  box-shadow: 0 0 18px var(--dua-dot-glow, rgba(250, 204, 21, 0.45));
+  transform: translateZ(0);
+}
+
+.pre-fajr-dua-measure {
+  position: absolute;
+  top: -99999px;
+  left: -99999px;
+  visibility: hidden;
+  pointer-events: none;
+  width: 1200px;
+}
+
+.pre-fajr-dua-measure-text {
+  margin: 0;
+  font-family: "Liftaswash Fixed", "Amiri", "Noto Naskh Arabic", "Scheherazade New", serif;
+  font-size: clamp(var(--dua-text-size-min, 2.35rem), var(--dua-text-size-fluid, 4.3vw), var(--dua-text-size-max, 5.8rem));
+  font-weight: 400;
+  line-height: var(--dua-text-line-height, 1.92);
+  text-align: center;
+  direction: rtl;
+  word-break: keep-all;
+  overflow-wrap: normal;
+  white-space: normal;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "liga" 1, "rlig" 1, "calt" 1;
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (max-height: 920px) {
+  .pre-fajr-dua-content {
+    padding-top: 1.1rem;
+    padding-bottom: 1.4rem;
+  }
+
+  .pre-fajr-dua-viewport {
+    height: min(68vh, 760px);
+  }
+
+  .pre-fajr-dua-text,
+  .pre-fajr-dua-measure-text {
+    line-height: 1.78;
+  }
+}
+
+@media (max-width: 980px) {
+  .pre-fajr-dua-sujood-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .pre-fajr-dua-sujood-side {
+    padding-top: 0.6rem;
+  }
+
+  .pre-fajr-dua-sujood-badge {
+    align-self: center;
+  }
+}
+
+@keyframes preFajrDuaEnterNext {
+  from {
+    opacity: 0;
+    transform: translate3d(-18px, 0, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes duaSujoodFloat {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(0, -12px, 0);
+  }
+}
+
+@keyframes duaSujoodReveal {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes duaSujoodSideIn {
+  from {
+    opacity: 0;
+    transform: translate3d(-20px, 0, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes duaSujoodBodyIn {
+  from {
+    opacity: 0;
+    transform: translate3d(20px, 0, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes duaSujoodPulse {
+  0%,
+  100% {
+    transform: scale(0.96);
+    opacity: 0.72;
+  }
+
+  50% {
+    transform: scale(1.02);
+    opacity: 1;
+  }
+}
+
+@keyframes duaSujoodSweep {
+  0%,
+  100% {
+    opacity: 0.36;
+    transform: scaleX(0.82);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+@keyframes duaSujoodChantPulse {
+  0%,
+  100% {
+    transform: translateY(0);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.12),
+      0 10px 22px rgba(124, 45, 18, 0.28);
+  }
+
+  50% {
+    transform: translateY(-4px);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.18),
+      0 14px 28px rgba(124, 45, 18, 0.36);
+  }
+}
+
+@keyframes preFajrDuaEnterPrev {
+  from {
+    opacity: 0;
+    transform: translate3d(18px, 0, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}

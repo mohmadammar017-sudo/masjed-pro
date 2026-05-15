@@ -1,0 +1,355 @@
+﻿<!doctype html>
+<html dir="rtl" lang="ar" class="dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Masjid Display Control</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<script src="/socket.io/socket.io.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+<script>
+  tailwind.config={darkMode:'class',theme:{extend:{colors:{primary:'#10bc6f','background-light':'#f6f8f7','background-dark':'#10221a'},fontFamily:{display:['Inter','Noto Sans Arabic','sans-serif']}}}};
+</script>
+<style>
+body{font-family:'Noto Sans Arabic','Inter',sans-serif;min-height:max(884px,100dvh)}
+.panel-hidden{display:none!important}
+.slot-chip-active{border-color:rgba(16,188,111,.55);background:rgba(16,188,111,.2);color:#10bc6f}
+.quran-tab-active{background:#10bc6f;color:#fff;box-shadow:0 12px 28px rgba(16,188,111,.22)}
+.quran-scrollbar::-webkit-scrollbar{width:6px}
+.quran-scrollbar::-webkit-scrollbar-thumb{background:rgba(16,188,111,.28);border-radius:9999px}
+.time-picker-gradient{background:linear-gradient(180deg,rgba(16,34,26,1) 0%,rgba(16,34,26,0) 25%,rgba(16,34,26,0) 75%,rgba(16,34,26,1) 100%)}
+</style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display">
+<div id="authLayer" class="fixed inset-0 z-[100] bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
+  <form id="authForm" class="w-full max-w-sm rounded-2xl border border-primary/30 bg-slate-900/95 p-6 space-y-4">
+    <h2 class="text-center text-xl font-bold text-white">التحكم عن بعد</h2>
+    <p class="text-center text-xs text-slate-300">أدخل رمز PIN للاتصال</p>
+    <input id="pinInput" type="password" inputmode="numeric" maxlength="4" class="w-full rounded-xl border border-primary/40 bg-slate-950 px-4 py-3 text-center text-2xl tracking-[0.4em] text-white" placeholder="0000" required />
+    <button type="submit" class="w-full rounded-xl bg-primary py-3 text-sm font-extrabold text-slate-950">دخول</button>
+    <p id="authError" class="min-h-5 text-center text-xs font-bold text-rose-300"></p>
+  </form>
+</div>
+
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden pb-24">
+<header class="sticky top-0 z-10 flex items-center border-b border-primary/10 bg-background-light/90 p-4 backdrop-blur dark:bg-background-dark/90">
+  <div class="text-primary mr-2">🏛️</div>
+  <div class="flex-1">
+    <h1 class="text-lg font-bold">لوحة تحكم شاشة المسجد</h1>
+    <div class="flex items-center gap-2"><span id="statusDot" class="size-2 rounded-full bg-primary"></span><p id="statusText" class="text-xs text-slate-500 dark:text-slate-300">بانتظار الاتصال...</p></div>
+  </div>
+  <button id="refreshStateBtn" class="rounded-full bg-primary/10 p-2 text-primary">⟳</button>
+</header>
+
+<section class="px-4 pt-6">
+  <h2 class="mb-3 text-xs font-bold uppercase tracking-widest text-primary">التحكم في الوضع</h2>
+  <div class="grid grid-cols-3 gap-2 rounded-xl bg-primary/5 p-1">
+    <button id="modePrayerBtn" data-mode="PRAYER" class="mode-btn rounded-lg py-3 text-xs font-bold">الصلاة</button>
+    <button id="modeDuaBtn" data-mode="DUA" class="mode-btn rounded-lg py-3 text-xs font-bold">الدعاء</button>
+    <button id="modeQuranBtn" data-mode="QURAN" class="mode-btn rounded-lg bg-primary py-3 text-xs font-bold text-white">القرآن</button>
+  </div>
+</section>
+
+<main class="flex-1 space-y-5 px-4 pt-6">
+  <section id="pageQuran" class="space-y-4">
+    <div class="relative overflow-hidden rounded-[1.8rem] border border-primary/20 bg-[linear-gradient(135deg,rgba(16,188,111,0.22),rgba(255,255,255,0.96)_44%,rgba(16,188,111,0.08))] p-5 shadow-[0_18px_50px_rgba(16,188,111,0.12)] dark:bg-[linear-gradient(135deg,rgba(16,188,111,0.22),rgba(16,34,26,0.92)_48%,rgba(6,78,59,0.6))]">
+      <div class="absolute -top-16 left-0 h-40 w-40 rounded-full bg-primary/10 blur-3xl"></div>
+      <div class="absolute -bottom-20 right-0 h-40 w-40 rounded-full bg-emerald-300/20 blur-3xl"></div>
+      <div class="relative flex items-center gap-4">
+        <div class="size-16 shrink-0 overflow-hidden rounded-full border-2 border-primary/35 bg-white p-1 shadow-lg shadow-primary/10">
+          <img src="/app-icon-square.png" alt="أيقونة القرآن" class="h-full w-full rounded-full object-cover" />
+        </div>
+        <div class="min-w-0 flex-1">
+          <p class="text-[11px] font-black uppercase tracking-[0.25em] text-primary">القارئ الحالي</p>
+          <h2 id="quranCurrentReciterName" class="truncate text-lg font-black text-slate-900 dark:text-white">-</h2>
+          <p id="quranCurrentReciterDesc" class="line-clamp-2 text-sm text-slate-600 dark:text-cyan-50/75">-</p>
+        </div>
+      </div>
+      <div class="relative mt-4">
+        <label class="mb-1 block text-[11px] font-black uppercase tracking-[0.22em] text-primary">تغيير القارئ</label>
+        <select id="quranReciterSelect" class="w-full rounded-2xl border border-primary/20 bg-white/90 px-4 py-3 text-sm font-bold text-slate-900 shadow-sm outline-none ring-0 transition focus:border-primary focus:ring-2 focus:ring-primary/15 dark:bg-slate-950/55 dark:text-white">
+          <option>اختر القارئ...</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="relative">
+      <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+      <input id="quranSearchInput" class="w-full rounded-2xl border border-primary/15 bg-white/85 py-3 pr-12 pl-4 text-sm text-slate-900 shadow-sm outline-none ring-0 transition focus:border-primary focus:ring-2 focus:ring-primary/15 dark:bg-primary/10 dark:text-slate-100" placeholder="بحث عن سورة أو آية..." type="text" />
+    </div>
+
+    <div class="flex gap-2 overflow-x-auto pb-1">
+      <button type="button" data-quran-filter="surahs" class="quran-filter-btn quran-tab-active rounded-full px-5 py-2 text-sm font-bold whitespace-nowrap">السور</button>
+      <button type="button" data-quran-filter="segments" class="quran-filter-btn rounded-full bg-slate-100 px-5 py-2 text-sm font-bold text-slate-600 whitespace-nowrap dark:bg-primary/10 dark:text-slate-400">الأجزاء</button>
+      <button type="button" data-quran-filter="favorites" class="quran-filter-btn rounded-full bg-slate-100 px-5 py-2 text-sm font-bold text-slate-600 whitespace-nowrap dark:bg-primary/10 dark:text-slate-400">المفضلة</button>
+      <button type="button" data-quran-filter="recent" class="quran-filter-btn rounded-full bg-slate-100 px-5 py-2 text-sm font-bold text-slate-600 whitespace-nowrap dark:bg-primary/10 dark:text-slate-400">الأخيرة</button>
+    </div>
+
+    <div class="rounded-[1.6rem] border border-primary/15 bg-white/85 p-4 shadow-sm dark:bg-primary/5">
+      <div class="flex items-start justify-between gap-4">
+        <div class="min-w-0">
+          <p class="text-[11px] font-black uppercase tracking-[0.22em] text-primary">المقطع الحالي</p>
+          <h3 id="quranCurrentSurah" class="truncate text-xl font-black text-slate-900 dark:text-white">-</h3>
+          <p id="quranCurrentTrackSubtitle" class="text-sm text-slate-500 dark:text-slate-300">اختر مقطعًا من القائمة</p>
+        </div>
+        <div class="rounded-2xl border border-primary/15 bg-primary/5 px-4 py-3 text-left dark:bg-slate-950/40">
+          <div id="quranTrackPositionLabel" class="text-lg font-black text-primary">0 / 0</div>
+          <div id="quranTrackMetaLabel" class="text-[11px] font-bold text-slate-500 dark:text-slate-300">لا توجد عناصر</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="quranEmptyState" class="panel-hidden rounded-[1.6rem] border border-dashed border-primary/25 bg-primary/5 px-5 py-8 text-center text-sm font-bold text-slate-500 dark:text-slate-300">
+      لا توجد عناصر مطابقة لهذا الفلتر.
+    </div>
+
+    <div id="quranTrackList" class="space-y-3 pb-44"></div>
+
+    <div class="sticky bottom-24 z-10">
+      <div class="rounded-[1.7rem] border border-primary/20 bg-background-light/95 p-4 shadow-[0_20px_60px_rgba(15,23,42,0.16)] backdrop-blur dark:bg-[#1c2e26]/95">
+        <div class="mb-3 flex items-center gap-4">
+          <div class="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-primary/15">
+            <img src="/app-icon-square.png" alt="غلاف المقطع الحالي" class="h-full w-full object-cover" />
+          </div>
+          <div class="min-w-0 flex-1">
+            <h4 id="quranPlayerTitle" class="truncate text-sm font-black text-slate-900 dark:text-white">-</h4>
+            <p id="quranPlayerReciter" class="truncate text-xs font-bold text-primary">-</p>
+          </div>
+          <button id="quranFavoriteToggleBtn" class="rounded-full p-2 text-slate-400 transition hover:bg-primary/10 hover:text-primary">
+            <span class="material-symbols-outlined">favorite_border</span>
+          </button>
+        </div>
+        <div class="space-y-1.5">
+          <div class="relative h-1.5 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+            <div id="quranTrackProgress" class="absolute inset-y-0 right-0 rounded-full bg-primary" style="width:0%"></div>
+          </div>
+          <div class="flex justify-between text-[10px] font-bold text-slate-400">
+            <span id="quranProgressStartLabel">اختيار</span>
+            <span id="quranProgressEndLabel">0 / 0</span>
+          </div>
+        </div>
+        <div class="mt-4 flex items-center justify-center gap-6">
+          <button id="quranNextBtn" class="rounded-full p-2 text-slate-600 transition hover:bg-primary/10 hover:text-primary dark:text-slate-300">
+            <span class="material-symbols-outlined text-3xl">skip_next</span>
+          </button>
+          <button id="quranPlayBtn" class="flex size-12 items-center justify-center rounded-full bg-primary text-white shadow-lg shadow-primary/30 transition hover:scale-105">
+            <span class="material-symbols-outlined text-3xl">play_arrow</span>
+          </button>
+          <button id="quranStopBtn" class="rounded-full p-2 text-slate-600 transition hover:bg-primary/10 hover:text-primary dark:text-slate-300">
+            <span class="material-symbols-outlined text-3xl">stop</span>
+          </button>
+          <button id="quranPrevBtn" class="rounded-full p-2 text-slate-600 transition hover:bg-primary/10 hover:text-primary dark:text-slate-300">
+            <span class="material-symbols-outlined text-3xl">skip_previous</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="pageDua" class="panel-hidden space-y-4">
+    <div class="rounded-[1.7rem] border border-primary/20 bg-[linear-gradient(135deg,rgba(16,188,111,0.18),rgba(255,255,255,0.96)_42%,rgba(16,188,111,0.08))] p-5 shadow-[0_18px_50px_rgba(16,188,111,0.12)] dark:bg-[linear-gradient(135deg,rgba(16,188,111,0.18),rgba(16,34,26,0.94)_48%,rgba(6,78,59,0.58))]">
+      <div class="flex items-start justify-between gap-4">
+        <div class="min-w-0">
+          <h2 class="text-2xl font-black text-primary">إدارة الأدعية</h2>
+          <p class="mt-1 text-sm text-slate-600 dark:text-cyan-50/75">الأدعية الفعلية القادمة من التطبيق مع التفعيل والمعاينة والترتيب السريع.</p>
+        </div>
+        <div class="rounded-2xl border border-primary/20 bg-white/75 px-4 py-3 text-center shadow-sm dark:bg-slate-950/35">
+          <div id="duaVisibleCount" class="text-2xl font-black text-primary">0</div>
+          <div class="text-[11px] font-bold text-slate-500 dark:text-slate-300">المعروض الآن</div>
+        </div>
+      </div>
+      <div class="mt-4 grid grid-cols-3 gap-3">
+        <div class="rounded-2xl border border-primary/15 bg-white/80 px-3 py-3 text-center dark:bg-slate-950/25">
+          <div id="duaActiveCount" class="text-lg font-black text-slate-900 dark:text-white">0</div>
+          <div class="text-[11px] font-bold text-slate-500 dark:text-slate-300">النشطة</div>
+        </div>
+        <div class="rounded-2xl border border-primary/15 bg-white/80 px-3 py-3 text-center dark:bg-slate-950/25">
+          <div id="duaTotalCount" class="text-lg font-black text-slate-900 dark:text-white">0</div>
+          <div class="text-[11px] font-bold text-slate-500 dark:text-slate-300">الإجمالي</div>
+        </div>
+        <div class="rounded-2xl border border-primary/15 bg-white/80 px-3 py-3 text-center dark:bg-slate-950/25">
+          <div id="duaDefaultDuration" class="text-lg font-black text-slate-900 dark:text-white">0 ث</div>
+          <div class="text-[11px] font-bold text-slate-500 dark:text-slate-300">المدة الافتراضية</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="relative">
+      <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+      <input id="duaSearchInput" class="w-full rounded-2xl border border-primary/15 bg-white/85 py-3 pr-12 pl-4 text-sm text-slate-900 shadow-sm outline-none ring-0 transition focus:border-primary focus:ring-2 focus:ring-primary/15 dark:bg-primary/10 dark:text-slate-100" placeholder="بحث عن دعاء..." type="text" />
+    </div>
+
+    <div class="flex gap-2 overflow-x-auto pb-1">
+      <button type="button" data-dua-filter="active" class="dua-filter-btn quran-tab-active rounded-full px-5 py-2 text-sm font-bold whitespace-nowrap">النشطة</button>
+      <button type="button" data-dua-filter="all" class="dua-filter-btn rounded-full bg-slate-100 px-5 py-2 text-sm font-bold text-slate-600 whitespace-nowrap dark:bg-primary/10 dark:text-slate-400">الكل</button>
+      <button type="button" data-dua-filter="inactive" class="dua-filter-btn rounded-full bg-slate-100 px-5 py-2 text-sm font-bold text-slate-600 whitespace-nowrap dark:bg-primary/10 dark:text-slate-400">المعطلة</button>
+      <button type="button" data-dua-filter="scheduled" class="dua-filter-btn rounded-full bg-slate-100 px-5 py-2 text-sm font-bold text-slate-600 whitespace-nowrap dark:bg-primary/10 dark:text-slate-400">المجدولة</button>
+    </div>
+
+    <div id="duaEmptyState" class="panel-hidden rounded-[1.6rem] border border-dashed border-primary/25 bg-primary/5 px-5 py-8 text-center text-sm font-bold text-slate-500 dark:text-slate-300">
+      لا توجد أدعية مطابقة لهذا الفلتر.
+    </div>
+
+    <div id="duaManagerList" class="space-y-3"></div>
+
+    <div class="sticky bottom-24 z-10">
+      <div class="rounded-[1.6rem] border border-primary/20 bg-background-light/95 p-4 shadow-[0_20px_60px_rgba(15,23,42,0.16)] backdrop-blur dark:bg-[#1c2e26]/95">
+        <div class="mb-3 flex items-center justify-between gap-4">
+          <div class="min-w-0">
+            <div class="text-[11px] font-black uppercase tracking-[0.22em] text-primary">التنقل بين الأدعية</div>
+            <div id="duaNavigationLabel" class="truncate text-sm font-bold text-slate-700 dark:text-slate-200">استخدم الأزرار للتبديل بين الصفحات</div>
+          </div>
+          <div class="rounded-full bg-primary/10 px-3 py-1 text-xs font-black text-primary">الوضع المباشر</div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <button id="duaPagePrevBtn" class="flex items-center justify-center gap-2 rounded-xl border border-primary/30 py-3 text-sm font-bold text-primary">
+            <span class="material-symbols-outlined">arrow_forward</span>
+            السابق
+          </button>
+          <button id="duaPageNextBtn" class="flex items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-extrabold text-white shadow-lg shadow-primary/20">
+            التالي
+            <span class="material-symbols-outlined">arrow_back</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="pagePrayer" class="panel-hidden space-y-4">
+    <div class="rounded-[1.7rem] border border-primary/20 bg-[linear-gradient(135deg,rgba(16,188,111,0.18),rgba(255,255,255,0.96)_42%,rgba(16,188,111,0.08))] p-5 shadow-[0_18px_50px_rgba(16,188,111,0.12)] dark:bg-[linear-gradient(135deg,rgba(16,188,111,0.18),rgba(16,34,26,0.94)_48%,rgba(6,78,59,0.58))]">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <h2 class="text-2xl font-black text-primary">صفحة الصلاة</h2>
+          <p class="mt-1 text-sm text-slate-600 dark:text-cyan-50/75">التنقل بين صفحات العرض أثناء وضع الصلاة. تعديل الأوقات أصبح داخل تبويب الإعدادات.</p>
+        </div>
+        <div class="rounded-2xl border border-primary/20 bg-white/75 px-4 py-3 text-center shadow-sm dark:bg-slate-950/35">
+          <div class="text-lg font-black text-primary">PRAYER</div>
+          <div class="text-[11px] font-bold text-slate-500 dark:text-slate-300">الوضع الحالي</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-[1.6rem] border border-primary/15 bg-white/85 p-4 shadow-sm dark:bg-primary/5">
+      <div class="mb-3 text-[11px] font-black uppercase tracking-[0.22em] text-primary">تنقل سريع</div>
+      <div class="grid grid-cols-2 gap-3">
+        <button id="prayerModePrevBtn" class="flex items-center justify-center gap-2 rounded-xl border border-primary/30 py-3 text-sm font-bold text-primary">
+          <span class="material-symbols-outlined">arrow_forward</span>
+          السابق
+        </button>
+        <button id="prayerModeNextBtn" class="flex items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-extrabold text-white shadow-lg shadow-primary/20">
+          التالي
+          <span class="material-symbols-outlined">arrow_back</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section id="pageSettings" class="panel-hidden space-y-4">
+    <h2 class="text-lg font-bold text-primary">إعدادات النظام</h2>
+    <div class="rounded-2xl border border-primary/15 bg-slate-100 p-4 space-y-4 dark:bg-primary/5">
+      <div class="space-y-2">
+        <label class="text-sm font-medium">اسم الإمام</label>
+        <input id="imamNameInput" class="h-12 w-full rounded-xl border border-primary/20 bg-white px-3 dark:bg-background-dark" placeholder="أدخل اسم الإمام هنا" />
+        <button id="saveImamBtn" class="w-full rounded-xl bg-primary py-2.5 text-sm font-extrabold text-white">حفظ اسم الإمام</button>
+      </div>
+      <div class="rounded-2xl border border-primary/15 bg-white/80 p-4 shadow-sm dark:bg-background-dark/50">
+        <div class="mb-3 flex items-center justify-between gap-3">
+          <div>
+            <div class="text-sm font-black text-slate-900 dark:text-white">تكبير البرنامج</div>
+            <div class="text-[11px] font-bold text-slate-500 dark:text-slate-300">تحكم بحجم واجهة التطبيق الرئيسية من الجوال.</div>
+          </div>
+          <div id="appZoomValue" class="rounded-full bg-primary/10 px-3 py-1 text-xs font-black text-primary">100%</div>
+        </div>
+        <input id="appZoomInput" type="range" min="0.5" max="2" step="0.05" class="w-full accent-primary" />
+        <div class="mt-2 flex items-center justify-between text-[11px] font-bold text-slate-400 dark:text-slate-400">
+          <span>50%</span>
+          <span id="appZoomHint">الحجم الحالي</span>
+          <span>200%</span>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <label class="text-xs font-bold">لون الخلفية<input id="backgroundColorInput" type="color" class="mt-1 h-10 w-full rounded-lg border border-primary/25 bg-transparent" /></label>
+        <label class="text-xs font-bold">لون التدرج<input id="overlayColorInput" type="color" class="mt-1 h-10 w-full rounded-lg border border-primary/25 bg-transparent" /></label>
+      </div>
+      <div><label class="text-xs font-bold">شفافية التدرج</label><input id="overlayOpacityInput" type="range" min="0" max="1" step="0.05" class="w-full" /></div>
+      <div class="space-y-2"><label class="text-xs font-bold">رابط صورة الخلفية</label><input id="backgroundImageInput" class="w-full rounded-lg border border-primary/25 bg-white px-3 py-2 text-sm dark:bg-background-dark" /><button id="saveBackgroundImageBtn" class="w-full rounded-lg border border-primary/30 py-2 text-sm font-bold text-primary">حفظ الصورة</button></div>
+    </div>
+
+    <div class="space-y-4">
+      <div class="sticky top-[4.5rem] z-10 rounded-[1.5rem] border border-primary/15 bg-background-light/85 p-4 shadow-sm backdrop-blur dark:bg-background-dark/85">
+        <div class="mb-4 flex items-center justify-between">
+        <button id="prayerHeaderBackBtn" class="rounded-full p-2 transition-colors hover:bg-primary/10">
+          <span class="text-sm font-black text-primary">إلغاء</span>
+        </button>
+          <h3 class="text-lg font-black text-slate-900 dark:text-white">أوقات الصلاة</h3>
+        <button id="prayerHeaderDoneBtn" class="rounded-full p-2 transition-colors hover:bg-primary/10">
+          <span class="text-sm font-black text-primary">تم</span>
+        </button>
+        </div>
+
+        <div class="mb-2 flex items-center justify-between">
+          <span id="prayerStepLabel" class="text-xs font-bold text-primary">الخطوة 1 من 5</span>
+          <span id="prayerCurrentStepName" class="text-xs font-bold text-slate-500 dark:text-slate-300">صلاة الفجر</span>
+        </div>
+        <div class="h-1.5 w-full overflow-hidden rounded-full bg-primary/10">
+          <div id="prayerStepProgress" class="h-full rounded-full bg-primary" style="width:20%"></div>
+        </div>
+      </div>
+
+      <div class="rounded-[1.7rem] border border-primary/15 bg-primary/5 p-6 shadow-sm dark:bg-primary/8">
+        <div class="flex flex-col items-center gap-6">
+          <div class="flex items-center gap-3">
+            <span id="prayerCurrentIcon" class="material-symbols-outlined text-4xl text-primary">dark_mode</span>
+            <h3 id="prayerCurrentName" class="text-2xl font-black text-slate-900 dark:text-white">الفجر</h3>
+          </div>
+
+          <div class="relative flex h-48 w-full max-w-[300px] items-center justify-center overflow-hidden rounded-[1.8rem] border border-primary/10 bg-slate-950 dark:bg-slate-950/70">
+            <div class="absolute inset-x-0 h-12 border-y border-primary/30 bg-primary/20 pointer-events-none z-0"></div>
+            <div class="relative z-10 flex w-full items-center">
+              <div class="flex-1 text-center">
+                <div id="prayerHourWheel" class="flex h-full min-h-full select-none flex-col justify-center gap-2 touch-none"></div>
+              </div>
+              <div class="flex items-center justify-center px-2">
+                <span class="text-2xl font-black text-primary">:</span>
+              </div>
+              <div class="flex-1 text-center">
+                <div id="prayerMinuteWheel" class="flex h-full min-h-full select-none flex-col justify-center gap-2 touch-none"></div>
+              </div>
+            </div>
+            <div class="time-picker-gradient absolute inset-0 pointer-events-none"></div>
+          </div>
+
+          <p id="prayerCurrentDescription" class="px-4 text-center text-sm text-slate-500 dark:text-slate-300">
+            سيتم اعتماد هذا الوقت لهذا الفرض، ويمكنك تعديل الساعة أو الدقيقة مباشرة.
+          </p>
+        </div>
+      </div>
+
+      <div id="prayerListGrid" class="grid grid-cols-1 gap-3"></div>
+
+      <div class="grid grid-cols-2 gap-3 rounded-[1.5rem] border border-primary/15 bg-background-light/95 p-4 shadow-[0_20px_60px_rgba(15,23,42,0.14)] backdrop-blur dark:bg-background-dark/95">
+        <button id="prayerNextPageBtn" class="flex items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-black text-white">
+          <span>التالي</span>
+          <span class="material-symbols-outlined">chevron_left</span>
+        </button>
+        <button id="prayerPrevPageBtn" class="flex items-center justify-center gap-2 rounded-xl border border-primary/20 bg-primary/10 py-3 text-sm font-black text-primary">
+          <span class="material-symbols-outlined">chevron_right</span>
+          <span>السابق</span>
+        </button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<nav class="fixed bottom-0 left-0 right-0 flex items-center justify-around border-t border-primary/10 bg-background-light px-6 py-3 dark:bg-background-dark">
+  <a id="navHome" href="#" class="text-xs text-primary">الرئيسية</a>
+  <a id="navBack" href="#" class="text-xs text-slate-500 dark:text-slate-400">رجوع</a>
+  <a id="navSettings" href="#" class="text-xs text-slate-500 dark:text-slate-400">الإعدادات</a>
+  <a id="navAdmin" href="#" class="text-xs text-slate-500 dark:text-slate-400">المسؤول</a>
+</nav>
+</div>
+
+<script src="/mobile-control.js"></script>
+</body>
+</html>

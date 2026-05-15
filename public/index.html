@@ -1,0 +1,192 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    
+    <!-- PWA / Web App Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#020617">
+    <meta name="description" content="تطبيق المسجد الذكي - عرض أوقات الصلاة والمناسبات">
+
+    <title>Masjid Display Pro</title>
+    <!-- Tailwind is kept via CDN for simplicity in this setup. For fully offline styles, a local CSS build is recommended, but cached CDN often works. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Tajawal', 'sans-serif'],
+              cairo: ['Cairo', 'sans-serif'],
+              amiri: ['"Amiri"', 'serif'],
+              scheherazade: ['"Scheherazade New"', 'serif'],
+            },
+            colors: {
+              gold: {
+                50: '#fffbf0',
+                100: '#fef5d6',
+                200: '#fae7a3',
+                300: '#f6d469',
+                400: '#f1bd36',
+                500: '#eca315',
+                600: '#d0820e',
+                700: '#a65e0f',
+                800: '#884a12',
+                900: '#733e14',
+              },
+              brand: {
+                dark: '#2c3e50',
+                gold: '#d4ac0d',
+                light: '#ecf0f1',
+              },
+              'gold-light': '#F3E5AB',
+              'gold-medium': '#DAA520',
+              'gold-dark': '#B8860B',
+            },
+            backgroundImage: {
+              'islamic-pattern': "url('https://www.transparenttextures.com/patterns/arabesque.png')",
+              'mosque-blur': "url('https://lh3.googleusercontent.com/aida-public/AB6AXuCGEca7zu9sM4LZnSB-9JDC7baIz2FA5Vy1IX9k-HiNCrBCHvWIMj1SfuGk8LNYc890l6U8lg0crGXmGr9g-YWUJAUpObDbT1OrD6vWd29qA_cloeUFrmYCRERAeGDy-nUptFKzfEuwpejq2Q6xtKUV1M4TH2QuHZ4JFjdr-gMg5uLCfAosYekF_CwygLDVvLDONlcerDAvMVbsJwRgF9-NcC4nW2H4Gg7KeWEBjHn8EDoy34P3QTPEiCSGW8dskT3TVhTxGLTf3wg')",
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body {
+        font-family: 'Tajawal', sans-serif;
+        background-color: #020617;
+        overflow-x: hidden;
+      }
+      /* Custom scrollbar hide */
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      
+      .dashboard-scroll::-webkit-scrollbar {
+        width: 8px;
+      }
+      .dashboard-scroll::-webkit-scrollbar-track {
+        background: #f1f1f1; 
+      }
+      .dashboard-scroll::-webkit-scrollbar-thumb {
+        background: #ccc; 
+        border-radius: 4px;
+      }
+      
+      /* --- PREMIUM ANIMATIONS --- */
+
+      /* Ambient Background Movement */
+      @keyframes gradient-xy {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+      
+      .animate-gradient-slow {
+        background-size: 400% 400%;
+        animation: gradient-xy 15s ease infinite;
+      }
+
+      /* Floating Elements (Breathing) */
+      @keyframes float-y {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+      }
+      .animate-float {
+        animation: float-y 6s ease-in-out infinite;
+      }
+      .animate-float-delayed {
+        animation: float-y 6s ease-in-out infinite;
+        animation-delay: 3s;
+      }
+
+      /* Pulse Glow */
+      @keyframes glow-pulse {
+        0%, 100% { box-shadow: 0 0 20px rgba(236, 163, 21, 0.2); }
+        50% { box-shadow: 0 0 40px rgba(236, 163, 21, 0.6); }
+      }
+      .animate-glow {
+        animation: glow-pulse 3s infinite;
+      }
+
+      /* Rotating Pattern */
+      @keyframes spin-slow {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+      .animate-spin-slow {
+        animation: spin-slow 120s linear infinite;
+      }
+
+      /* Dashboard Transitions */
+      @keyframes slideInUpFade {
+        0% { transform: translateY(50px) scale(0.95); opacity: 0; }
+        100% { transform: translateY(0) scale(1); opacity: 1; }
+      }
+      @keyframes slideOutDownFade {
+        0% { transform: translateY(0) scale(1); opacity: 1; }
+        100% { transform: translateY(50px) scale(0.95); opacity: 0; }
+      }
+
+      .dashboard-enter {
+        animation: slideInUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+      .dashboard-exit {
+        animation: slideOutDownFade 0.4s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+      }
+
+      /* Switch Styles */
+      .switch-checkbox { display: none; }
+      .switch-label {
+        width: 60px;
+        height: 32px;
+        background-color: #e2e8f0;
+        border-radius: 999px;
+        position: relative;
+        cursor: pointer;
+        transition: 0.4s;
+      }
+      .switch-slider {
+        width: 26px;
+        height: 26px;
+        background-color: white;
+        border-radius: 50%;
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        transition: 0.4s;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      }
+      .switch-checkbox:checked + .switch-label { background-color: #d4ac0d; }
+      .switch-checkbox:checked + .switch-label .switch-slider { transform: translateX(28px); }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.2.4",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
+    "@google/genai": "https://esm.sh/@google/genai@^0.2.0"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
