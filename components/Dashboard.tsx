@@ -1,9 +1,10 @@
 ﻿
 import React, { Suspense, lazy, memo, startTransition, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { AdhanSettings, AnnouncementPrayerTrigger, MonthlySchedule, MosqueInfo, Occasion, PrayerSettings, PrayerTime, RamadanDuaSystemSettings, TimetableDay } from '../types';
+import { DEFAULT_PRAYER_SETTINGS } from '../constants';
 import IOSTimePicker from './IOSTimePicker';
 import { convert24to12, convert12to24, fileToDataUrl } from '../utils';
-import { CUSTOM_QURAN_RECITER_ID, getQuranReciters } from '../data/quranLibrary';
+import { CUSTOM_QURAN_RECITER_ID, getQuranReciters, normalizeQuranSettings } from '../data/quranLibrary';
 import { normalizeRamadanDuaSystemSettings } from '../data/ramadanDuaLibrary';
 
 interface RemoteControlStatus {
@@ -67,6 +68,80 @@ const ANNOUNCEMENT_PRAYER_OPTIONS: Array<{ id: AnnouncementPrayerTrigger; label:
   { id: 'isha', label: 'بعد العشاء', helper: 'ختام الليلة' }
 ];
 
+const VALID_ANNOUNCEMENT_TRIGGERS = new Set<AnnouncementPrayerTrigger>(
+  ANNOUNCEMENT_PRAYER_OPTIONS.map((option) => option.id)
+);
+
+const normalizeDashboardPrayerSettings = (value?: Partial<PrayerSettings> | null): PrayerSettings => {
+  const announcement = value?.announcement || DEFAULT_PRAYER_SETTINGS.announcement;
+  const triggerAfterPrayers = Array.isArray(announcement.triggerAfterPrayers)
+    ? announcement.triggerAfterPrayers.filter((item): item is AnnouncementPrayerTrigger =>
+        VALID_ANNOUNCEMENT_TRIGGERS.has(item as AnnouncementPrayerTrigger)
+      )
+    : DEFAULT_PRAYER_SETTINGS.announcement.triggerAfterPrayers;
+
+  return {
+    ...DEFAULT_PRAYER_SETTINGS,
+    ...(value || {}),
+    tasbeeh: { ...DEFAULT_PRAYER_SETTINGS.tasbeeh, ...(value?.tasbeeh || {}) },
+    quranVerse: { ...DEFAULT_PRAYER_SETTINGS.quranVerse, ...(value?.quranVerse || {}) },
+    quran: normalizeQuranSettings(value?.quran),
+    duaAhd: { ...DEFAULT_PRAYER_SETTINGS.duaAhd, ...(value?.duaAhd || {}) },
+    duaSabah: { ...DEFAULT_PRAYER_SETTINGS.duaSabah, ...(value?.duaSabah || {}) },
+    ramadanDuas: { ...DEFAULT_PRAYER_SETTINGS.ramadanDuas, ...(value?.ramadanDuas || {}) },
+    ramadanDuaSystem: normalizeRamadanDuaSystemSettings({
+      ...DEFAULT_PRAYER_SETTINGS.ramadanDuaSystem,
+      ...(value?.ramadanDuaSystem || {}),
+      backgroundImage: value?.ramadanDuaSystem?.backgroundImage ?? value?.ramadanDuas?.backgroundImage ?? DEFAULT_PRAYER_SETTINGS.ramadanDuaSystem.backgroundImage
+    }),
+    postIsha: { ...DEFAULT_PRAYER_SETTINGS.postIsha, ...(value?.postIsha || {}) },
+    announcement: {
+      ...DEFAULT_PRAYER_SETTINGS.announcement,
+      ...announcement,
+      triggerAfterPrayers,
+      durationSec: Math.max(5, Math.min(600, Number(announcement.durationSec) || DEFAULT_PRAYER_SETTINGS.announcement.durationSec))
+    }
+  };
+};
+
+class DashboardPanelErrorBoundary extends React.Component<
+  { activeTab: Tab; children: React.ReactNode },
+  { error: Error | null }
+> {
+  state: { error: Error | null } = { error: null };
+
+  static getDerivedStateFromError(error: Error) {
+    return { error };
+  }
+
+  componentDidUpdate(previousProps: { activeTab: Tab }) {
+    if (previousProps.activeTab !== this.props.activeTab && this.state.error) {
+      this.setState({ error: null });
+    }
+  }
+
+  render() {
+    if (this.state.error) {
+      return (
+        <div className="mx-auto max-w-3xl rounded-[2rem] border border-red-400/25 bg-red-950/30 p-8 text-center text-white">
+          <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-red-500/20 text-3xl text-red-100">
+            <i className="fa-solid fa-triangle-exclamation"></i>
+          </div>
+          <h3 className="text-2xl font-black">تعذر فتح هذا القسم</h3>
+          <p className="mt-3 text-sm leading-7 text-red-100/80">
+            تم منع ظهور الصفحة الفارغة. غالبًا توجد بيانات قديمة أو ناقصة، غيّر التبويب ثم ارجع له أو أغلق الإعدادات وافتحها مرة أخرى.
+          </p>
+          <div className="mt-4 rounded-2xl bg-black/25 p-4 text-left font-mono text-xs text-red-100/80" dir="ltr">
+            {this.state.error.message}
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
 const DashboardPanelFallback: React.FC<{ label: string }> = ({ label }) => (
   <div className="flex min-h-[14rem] items-center justify-center rounded-3xl border border-white/10 bg-white/5 px-6 py-8 text-center text-white">
     <div className="flex items-center gap-4">
@@ -98,13 +173,17 @@ const Dashboard: React.FC<DashboardProps> = ({
   onUpdateBackgroundUrl, currentHomeBackgroundColor, onUpdateHomeBackgroundColor,
   currentHomeOverlayColor = '#000000', onUpdateHomeOverlayColor, currentHomeOverlayOpacity = 0.4,
   onUpdateHomeOverlayOpacity, currentAdhanSettings, onUpdateAdhanSettings,
-  onUploadAdhanBackground, currentPrayerSettings, onUpdatePrayerSettings,
+  onUploadAdhanBackground, currentPrayerSettings: incomingPrayerSettings, onUpdatePrayerSettings,
   onUploadPrayerBackground, onUpdateMonthlySchedule, currentMonthlySchedule, onUploadTasbeehBackground, onUploadQuranVerseBackground,
   currentHijriOffset = 0, onUpdateHijriOffset, onApplyDay, onPreviewRamadanDua, onPreviewAnnouncement, onPreviewQuranMode, remoteControlStatus
 }) => {
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
   const [isExiting, setIsExiting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const currentPrayerSettings = useMemo(
+    () => normalizeDashboardPrayerSettings(incomingPrayerSettings),
+    [incomingPrayerSettings]
+  );
   const normalizedRamadanDuaSystem = useMemo(
     () => normalizeRamadanDuaSystemSettings(currentPrayerSettings.ramadanDuaSystem),
     [currentPrayerSettings.ramadanDuaSystem]
@@ -121,7 +200,7 @@ const Dashboard: React.FC<DashboardProps> = ({
 
   useEffect(() => {
      const fetchZoom = async () => {
-         if (window.electron && window.electron.zoom) {
+         if (window.electron && window.electron.zoom && typeof window.electron.zoom.get === 'function') {
              const current = await window.electron.zoom.get();
              setZoomLevel(current);
          }
@@ -134,14 +213,14 @@ const Dashboard: React.FC<DashboardProps> = ({
     const roundedZoom = parseFloat(safeZoom.toFixed(2));
     setZoomLevel(roundedZoom);
     setAutoScale(false);
-    if (window.electron && window.electron.zoom) {
+    if (window.electron && window.electron.zoom && typeof window.electron.zoom.set === 'function') {
         await window.electron.zoom.set(roundedZoom);
     }
   }, []);
 
   const handleAutoScaleToggle = useCallback(async (checked: boolean) => {
      setAutoScale(checked);
-     if (checked && window.electron && window.electron.zoom) {
+     if (checked && window.electron && window.electron.zoom && typeof window.electron.zoom.getSmartLevel === 'function' && typeof window.electron.zoom.set === 'function') {
          const smart = await window.electron.zoom.getSmartLevel();
          setZoomLevel(smart);
          await window.electron.zoom.set(smart);
@@ -394,6 +473,7 @@ const Dashboard: React.FC<DashboardProps> = ({
             </aside>
 
             <main className="flex-1 overflow-y-auto p-8 lg:p-12 dashboard-scroll bg-transparent relative">
+              <DashboardPanelErrorBoundary activeTab={currentTab}>
                 {isDashboardTab && (
                   <>
                     {variant === 'quick' ? (
@@ -1118,6 +1198,7 @@ const Dashboard: React.FC<DashboardProps> = ({
 	                        </Suspense>
 	                    </div>
 	                )}
+              </DashboardPanelErrorBoundary>
             </main>
         </div>
     </div>
