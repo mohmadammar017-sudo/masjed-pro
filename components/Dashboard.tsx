@@ -881,6 +881,8 @@ const Dashboard: React.FC<DashboardProps> = ({
                         </div>
                     </div>
                 )}
+                  </>
+                )}
 
 	                {isScheduleTab && (
 	                    <Suspense fallback={<DashboardPanelFallback label="جاري تحميل جدول الصلاة..." />}>
@@ -1129,8 +1131,6 @@ const Dashboard: React.FC<DashboardProps> = ({
 
                     </div>
                     )}
-                  </>
-                )}
 
 	                {isRemoteControlTab && (
 	                    <div className="max-w-4xl mx-auto space-y-8 animate-fade-in">
